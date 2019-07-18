@@ -3,14 +3,15 @@ import { Card, Col, Row, InputNumber, Button, Layout, Modal, Input, Alert } from
 import normal from '../img/normal.png';
 import Honeymoon from '../img/honeymoon.png';
 import Pair from '../img/pair.png';
-import {withRouter} from 'react-router-dom'
 import axios from 'axios';
+import Ticket from './Ticket';
 
 const { Header } = Layout;
 
 class Seat extends Component {
 
     state = { 
+        couteSeats:0,
         visible: false, 
         normalPrice:0,
         honeymoonPrice:0,
@@ -20,6 +21,8 @@ class Seat extends Component {
         countPair:0,
         payment:0,
         position:0,
+        loading: false,
+        isHidden: true,
         change:{
 
             1000: 0,
@@ -35,9 +38,20 @@ class Seat extends Component {
         }
         };
 
-    sendData = () => {
-        axios.put(`http://localhost:4000/reserver`,{
-            params:{
+    showModal = () => {
+      this.setState({
+        visible: true,
+      });
+    };
+  
+    handleOk = () => {
+      this.setState({
+        visible: false,
+        isHidden: !this.state.isHidden,
+      });
+      setTimeout(() => {
+        axios.post(`http://localhost:8081/reserver`,{
+
                 id: this.props.id,
                 time: this.props.time,
                 countNormal: this.state.countNormal,
@@ -46,28 +60,17 @@ class Seat extends Component {
                 date: this.props.date,
                 totalPrice: this.state.normalPrice + this.state.honeymoonPrice + this.state.pairSeatPrice,
                 payment: this.state.payment,
-            }
+            
         }).then(response => {
             this.setState({
                change : response.data
             })
-            this.props.history.push('/')
+            alert("payment Confirmed")
           }).catch(err => {
-              Alert("fail")
-          })    
+              alert("fail to connect service")
+          }) 
+    }, 3000);
     }
-
-    showModal = () => {
-      this.setState({
-        visible: true,
-      });
-    };
-  
-    handleOk = e => {
-      this.setState({
-        visible: false,
-      });
-    };
   
     handleCancel = e => {
       this.setState({
@@ -99,16 +102,19 @@ class Seat extends Component {
          })
       }
 
-      calculat = (money) => {
+      calculat = (money,value) => {
           this.setState({
-            payment : money,
+            payment : value,
           })
+          this.countSeate()
       }
 
-
-
-
-    render () {
+      countSeate = () => {
+        this.setState({
+            couteSeats: this.state.countNormal+this.state.countHoneymoon+this.state.countPair
+        })
+      }
+     render () {
         return (
         <div style={{ background: '#ECECEC', padding: '50px 300px' }}>
         <Card title="ประเภทที่นั่ง" bordered={false} style={{ width: 900 }}>
@@ -172,11 +178,11 @@ class Seat extends Component {
                         <h3> ชำระจำนวน </h3> 
                     </Col>
                     <Col span={12} style={{textAlign:'right'}}>
-                        <Input style={{ width:'150px',textAlign:'right'}} placeholder="โปรดใส่จำนวนเงิน" onChange={(e) => this.calculat(e) }/>
+                        <InputNumber style={{ width:'150px',textAlign:'right'}} placeholder="โปรดใส่จำนวนเงิน" onChange={(e) => this.calculat(this.state.payment,e) }/>
                     </Col>       
                 </Row>
-                        <Button onClick={this.handleOk}>SUBMIT</Button>
-            </Modal>
+                        <Button onClick={() => this.handleOk()}>SUBMIT</Button>
+                </Modal>
 
                  <Header className="card-price">
                 <Row>
@@ -189,10 +195,11 @@ class Seat extends Component {
                 </Row> 
                  </Header>
             </Card>
+            {!this.state.isHidden && <Ticket dates={this.props.date} detailTicket={this.props.seatDetail} detailChange={this.state.change} informations={this.props.information} detailseat={this.state.couteSeats}/>}
           </div>
         )
     }
 
 
 }
-export default withRouter(Seat);
+export default Seat;

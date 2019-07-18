@@ -30,8 +30,6 @@ class ShowTime extends Component {
       selectTime: time,
       seatDetail: showtime
     });
-    console.log("showtime",showtime);
-    console.log(time);
   }
   
 
@@ -73,7 +71,7 @@ class ShowTime extends Component {
         <Tabs type="card" onChange={callback}>
           {this.listDay(this.props.showtime)}
         </Tabs>
-        {!this.state.isHidden && <Seat date={this.state.selectDate} time={this.state.selectTime} id={this.props.movies.id} seatDetail={this.state.seatDetail} />}
+        {!this.state.isHidden && <Seat date={this.state.selectDate} time={this.state.selectTime} id={this.props.movies.id} seatDetail={this.state.seatDetail} information={this.props.movies}/>}
       </div>
       
     );

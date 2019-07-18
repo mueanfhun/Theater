@@ -12,7 +12,7 @@ class Main extends Component {
   }
 
   componentDidMount() {
-    axios.get(`http://localhost:4000/movies`)
+    axios.get(`http://localhost:8081/movies`)
       .then(res => {
         const dataMovies = res.data;
         console.log("=====>",dataMovies);
